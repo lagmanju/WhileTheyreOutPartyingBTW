@@ -1,4 +1,5 @@
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>While They're Out Partying btw</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Fredoka:wght@500;600;700&display=swap">
 <style>
@@ -6,7 +7,17 @@
 :root{--ink:#2b1620;--pink:#ff3f66;--pink-d:#d42a50;--cream:#fff0ea;--blue:#2d7be0;--blue-d:#1b56a8;--yellow:#ffd83b;--bg:#1a1230;color-scheme:dark;
 --display:"Luckiest Guy",Impact,"Arial Black",sans-serif;--body:Fredoka,"Trebuchet MS",system-ui,sans-serif}
 [hidden]{display:none!important}
-html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);font-family:var(--body);color:var(--ink)}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);font-family:var(--body);color:var(--ink);
+ overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+#pads{position:absolute;left:0;right:0;bottom:0;height:24vh;display:flex;gap:8px;box-sizing:border-box;pointer-events:auto;
+ padding:8px max(8px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.pad{flex:1;font:400 clamp(20px,6vw,30px) var(--display);letter-spacing:.05em;color:#fff;-webkit-text-stroke:1.5px var(--ink);paint-order:stroke fill;
+ background:var(--pink);border:5px solid var(--ink);border-radius:24px;box-shadow:inset 0 -10px 0 var(--pink-d);transition:opacity .1s}
+.pad.r{background:var(--blue);box-shadow:inset 0 -10px 0 var(--blue-d)}
+.pad:active{translate:0 4px;box-shadow:none}
+.pad.done{opacity:.35}
+#pads:not([hidden])~.prompt{bottom:calc(24vh + 12px)}
+#pads:not([hidden])~.prompt #keys{display:none}
 #c{position:fixed;inset:0;display:block;width:100%;height:100%}
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;gap:16px;text-align:center;pointer-events:none;
  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));box-sizing:border-box}
@@ -21,7 +32,8 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);font-family:
 .panel{background:var(--cream);border:5px solid var(--ink);border-radius:24px;box-shadow:0 7px 0 var(--ink);padding:12px 18px}
 .how{width:100%;box-sizing:border-box;text-align:left}
 .how h2{margin:0 0 6px;font-family:var(--display);font-weight:400;color:var(--pink);font-size:24px;letter-spacing:.04em}
-.how ol{margin:0;padding-left:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:4px 32px;font-size:15px}
+.how ol{margin:0;padding-left:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:4px 28px;font-size:15px}
+.how .credit{margin-top:6px;text-align:center;font-weight:700;opacity:.7}
 .how p{margin:8px 0 0;font-size:13px}
 kbd{display:inline-grid;place-items:center;min-width:1.7em;height:1.7em;padding:0 4px;margin:0 2px;box-sizing:border-box;font-family:var(--display);font-size:1em;color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:8px;box-shadow:0 3px 0 var(--ink)}
 .btn{font-family:var(--display);font-size:30px;letter-spacing:.05em;color:#fff;background:var(--pink);border:5px solid var(--ink);border-radius:999px;padding:14px 42px 8px;cursor:pointer;
@@ -86,13 +98,12 @@ kbd{display:inline-grid;place-items:center;min-width:1.7em;height:1.7em;padding:
     <div class="panel how">
       <h2>How to wrap</h2>
       <ol>
-        <li>Bottom row: press both keys <b>together</b> <kbd>X</kbd><kbd>N</kbd></li>
-        <li>Middle row: left key folds the left side <kbd>D</kbd></li>
-        <li>Middle row: right key folds the right side, <b>one at a time</b> <kbd>K</kbd></li>
-        <li>Top row: press both keys <b>together</b> <kbd>R</kbd><kbd>O</kbd></li>
+        <li><b>Bottom row:</b> press the two keys shown <b>together</b></li>
+        <li><b>Middle row:</b> press the left key, then the right key, <b>one at a time</b></li>
+        <li><b>Top row:</b> press the two keys shown <b>together</b></li>
       </ol>
       <p>You get 30 seconds. Three mistakes and the shift is over.</p>
-      <p>made by Justin LOL</p>
+      <p class="credit">Created by Justin Lagman lol</p>
     </div>
   </div>
 </section>
@@ -113,6 +124,7 @@ kbd{display:inline-grid;place-items:center;min-width:1.7em;height:1.7em;padding:
     </svg>
     <b id="secs">30</b>
   </div>
+  <div id="pads" hidden><button class="pad" aria-label="Left hand">Left hand</button><button class="pad r" aria-label="Right hand">Right hand</button></div>
   <div class="panel prompt"><div id="pips"><i></i><i></i><i></i><i></i></div><div id="keys"></div><div id="hint"></div></div>
 </div>
 
@@ -315,6 +327,8 @@ const camMix = { v: 0 }, _look = new THREE.Vector3();
 function resize() {
   renderer.setSize(innerWidth, innerHeight, false);
   camera.aspect = innerWidth / innerHeight; camera.fov = camera.aspect < 1 ? 78 : 55; camera.updateProjectionMatrix();
+  // portrait: higher and further back so the burger clears the brim and the pads
+  const tall = camera.aspect < 1; camFP.pos.set(0, tall ? 2.5 : 1.95, tall ? 1.6 : 1.35); camFP.look.z = tall ? .05 : -.3;
 }
 addEventListener('resize', resize); resize();
 
@@ -353,7 +367,12 @@ let best = 0; try { best = +localStorage.getItem('wtop-best') || 0; } catch { }
 
 // ---------- game ----------
 const ROWS = ['ZXCVBNM', 'ASDFGHJKL', 'QWERTYUIOP'];
-const GAME_MS = 30000, TOGETHER_MS = 150, APART_MS = 80;
+const TOUCH = matchMedia('(pointer: coarse)').matches;
+const GAME_MS = 30000, TOGETHER_MS = TOUCH ? 220 : 150, APART_MS = 80; // thumbs are less precise than fingers on keys
+if (TOUCH) {
+  $('#pads').hidden = false;
+  $('.how ol').innerHTML = '<li><b>Both hands:</b> tap the two pads <b>together</b></li><li><b>Sides:</b> tap left, then right, <b>one at a time</b></li><li><b>Both hands:</b> tap the two pads <b>together</b> again</li>';
+}
 const GAP = 4; // every pair is exactly this many keys apart; only its spot on the row is random
 const pairFrom = row => { const i = Math.random() * (row.length - GAP) | 0; return [row[i], row[i + GAP]]; };
 const points = ms => Math.round(Math.min(100, Math.max(10, 100 - (ms - 250) / 12)));
@@ -371,12 +390,14 @@ function hud() {
   $('#strikes').querySelectorAll('i').forEach((el, i) => { el.className = i < strikes ? 'x' : ''; el.textContent = i < strikes ? '✕' : ''; });
   const folds = stage === 0 ? 0 : stage === 1 ? 1 + Object.keys(done).length : 3;
   $('#pips').querySelectorAll('i').forEach((el, i) => el.className = i < folds ? 'on' : '');
+  const label = i => TOUCH ? 'LR'[i] : keys[i];
+  $('#pads').querySelectorAll('.pad').forEach((p, i) => p.classList.toggle('done', stage === 1 && !!done[keys[i]]));
   if (stage === 1) {
-    $('#keys').innerHTML = `<span>Left</span><kbd class="${done[keys[0]] ? 'done' : ''}">${keys[0]}</kbd><kbd class="${done[keys[1]] ? 'done' : ''}">${keys[1]}</kbd><span>Right</span>`;
+    $('#keys').innerHTML = `<span>Left</span><kbd class="${done[keys[0]] ? 'done' : ''}">${label(0)}</kbd><kbd class="${done[keys[1]] ? 'done' : ''}">${label(1)}</kbd><span>Right</span>`;
     $('#hint').textContent = 'One at a time!';
   } else {
-    $('#keys').innerHTML = `<kbd>${keys[0]}</kbd>+<kbd>${keys[1]}</kbd>`;
-    $('#hint').textContent = 'Together!';
+    $('#keys').innerHTML = `<kbd>${label(0)}</kbd>+<kbd>${label(1)}</kbd>`;
+    $('#hint').textContent = TOUCH ? 'Tap both together!' : 'Together!';
   }
 }
 function swing(arm, target) {
@@ -419,7 +440,12 @@ addEventListener('keydown', e => {
   if (e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
   if (state === 'menu' || state === 'over') { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); start(); } return; }
   const k = e.key.toUpperCase();
-  if (state !== 'play' || busy || !/^[A-Z]$/.test(k)) return;
+  if (/^[A-Z]$/.test(k)) press(k);
+});
+// each hand pad presses that side's key, so touch and keyboard share the same fold rules
+$('#pads').querySelectorAll('.pad').forEach((p, i) => p.addEventListener('pointerdown', e => { e.preventDefault(); press(keys[i]); }));
+function press(k) {
+  if (state !== 'play' || busy) return;
   if (!keys.includes(k)) return mistake('WRONG KEY!');
   const t = now();
   if (stage === 1) {
@@ -433,7 +459,7 @@ addEventListener('keydown', e => {
   if (k === pend.k) return;
   clearTimeout(pend.timer); const t0 = pend.t; pend = null;
   fold(stage === 0 ? 'front' : 'back'); award(t0 - stageT0); nextStage();
-});
+}
 
 function show(id) { for (const s of ['#menu', '#hud', '#over']) $(s).hidden = s !== id; }
 function start() {
