@@ -17,11 +17,11 @@ html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);font-family:
 .badge h1{font-size:clamp(30px,6vw,72px);transform:skew(-6deg)}
 .star{font-size:clamp(26px,4vw,48px);color:var(--pink);-webkit-text-stroke:3px var(--ink);paint-order:stroke fill}
 .tag{margin:0;font-weight:600;font-size:18px;color:#fff;text-shadow:0 2px 0 var(--ink)}
-.bottom{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;justify-content:center}
+.bottom{display:flex;flex-direction:column;gap:16px;align-items:center;width:100%}
 .panel{background:var(--cream);border:5px solid var(--ink);border-radius:24px;box-shadow:0 7px 0 var(--ink);padding:12px 18px}
-.how{max-width:520px;text-align:left}
+.how{width:100%;box-sizing:border-box;text-align:left}
 .how h2{margin:0 0 6px;font-family:var(--display);font-weight:400;color:var(--pink);font-size:24px;letter-spacing:.04em}
-.how ol{margin:0;padding-left:22px;display:grid;gap:4px;font-size:15px}
+.how ol{margin:0;padding-left:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:4px 32px;font-size:15px}
 .how p{margin:8px 0 0;font-size:13px}
 kbd{display:inline-grid;place-items:center;min-width:1.7em;height:1.7em;padding:0 4px;margin:0 2px;box-sizing:border-box;font-family:var(--display);font-size:1em;color:var(--ink);background:#fff;border:3px solid var(--ink);border-radius:8px;box-shadow:0 3px 0 var(--ink)}
 .btn{font-family:var(--display);font-size:30px;letter-spacing:.05em;color:#fff;background:var(--pink);border:5px solid var(--ink);border-radius:999px;padding:14px 42px 8px;cursor:pointer;
@@ -82,6 +82,7 @@ kbd{display:inline-grid;place-items:center;min-width:1.7em;height:1.7em;padding:
 <section id="menu" class="screen">
   <div class="badge"><span class="star">★</span><h1>While They're Out Partying btw...</h1><span class="star">★</span></div>
   <div class="bottom">
+    <button class="btn" id="play">Play</button>
     <div class="panel how">
       <h2>How to wrap</h2>
       <ol>
@@ -90,9 +91,8 @@ kbd{display:inline-grid;place-items:center;min-width:1.7em;height:1.7em;padding:
         <li>Middle row: right key folds the right side, <b>one at a time</b> <kbd>K</kbd></li>
         <li>Top row: press both keys <b>together</b> <kbd>R</kbd><kbd>O</kbd></li>
       </ol>
-      <p>You get 60 seconds. Three mistakes and the shift is over.</p>
+      <p>You get 30 seconds. Three mistakes and the shift is over.</p>
     </div>
-    <button class="btn" id="play">Play</button>
   </div>
 </section>
 
@@ -110,7 +110,7 @@ kbd{display:inline-grid;place-items:center;min-width:1.7em;height:1.7em;padding:
       <line id="hand" x1="60" y1="74" x2="60" y2="38" stroke="#d6262a" stroke-width="4" stroke-linecap="round"/>
       <circle cx="60" cy="74" r="5" fill="#2b1620"/>
     </svg>
-    <b id="secs">60</b>
+    <b id="secs">30</b>
   </div>
   <div class="panel prompt"><div id="pips"><i></i><i></i><i></i><i></i></div><div id="keys"></div><div id="hint"></div></div>
 </div>
@@ -352,7 +352,7 @@ let best = 0; try { best = +localStorage.getItem('wtop-best') || 0; } catch { }
 
 // ---------- game ----------
 const ROWS = ['ZXCVBNM', 'ASDFGHJKL', 'QWERTYUIOP'];
-const GAME_MS = 60000, TOGETHER_MS = 150, APART_MS = 80;
+const GAME_MS = 30000, TOGETHER_MS = 150, APART_MS = 80;
 const GAP = 4; // every pair is exactly this many keys apart; only its spot on the row is random
 const pairFrom = row => { const i = Math.random() * (row.length - GAP) | 0; return [row[i], row[i + GAP]]; };
 const points = ms => Math.round(Math.min(100, Math.max(10, 100 - (ms - 250) / 12)));
@@ -439,7 +439,7 @@ function start() {
   score = burgers = strikes = stage = 0; busy = true; keys = ['', '']; done = {};
   scene.remove(cur.g); cur = makeBurger(false);
   show('#hud'); hud(); $('#keys').innerHTML = ''; $('#hint').textContent = 'Get ready...';
-  $('#secs').textContent = 60; $('#hand').setAttribute('transform', 'rotate(0 60 74)');
+  $('#secs').textContent = GAME_MS / 1000; $('#hand').setAttribute('transform', 'rotate(0 60 74)');
   state = 'count'; tween(camMix, 'v', 1, 900);
   ['3', '2', '1'].forEach((n, i) => setTimeout(() => pop(n, '', 50, 45), 400 + i * 550));
   setTimeout(() => { pop('HUSS!', '', 50, 45); sfx('huss'); state = 'play'; busy = false; tEnd = now() + GAME_MS; newStage(); }, 400 + 3 * 550);
