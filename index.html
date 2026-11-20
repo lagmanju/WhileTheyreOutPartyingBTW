@@ -436,6 +436,8 @@ addEventListener('keydown', e => {
 
 function show(id) { for (const s of ['#menu', '#hud', '#over']) $(s).hidden = s !== id; }
 function start() {
+  // browsers only allow audio started from a click/keypress, so unlock it here, not in the countdown timer
+  try { ac ??= new AudioContext(); ac.resume(); } catch { }
   score = burgers = strikes = stage = 0; busy = true; keys = ['', '']; done = {};
   scene.remove(cur.g); cur = makeBurger(false);
   show('#hud'); hud(); $('#keys').innerHTML = ''; $('#hint').textContent = 'Get ready...';
